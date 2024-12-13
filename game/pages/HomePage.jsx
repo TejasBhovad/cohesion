@@ -2,7 +2,7 @@ import { ComponentProps } from 'react';
 import { useSetPage } from '../hooks/usePage';
 import { cn } from '../utils';
 
-export const HomePage = ({ postId }) => {
+export const HomePage = ({ postId, name, description }) => {
   const setPage = useSetPage();
 
   return (
@@ -15,6 +15,10 @@ export const HomePage = ({ postId }) => {
       </p>
       <img src="/assets/default-snoovatar.png" alt="default snoovatar picture" />
       <p className="relative z-20 mb-4 mt-2 text-center text-neutral-300">PostId: {postId}</p>
+      <p className="relative z-20 mb-4 mt-2 text-center text-neutral-300">Name: {name}</p>
+      <p className="relative z-20 mb-4 mt-2 text-center text-neutral-300">
+        Description: {description}
+      </p>
       <MagicButton
         onClick={() => {
           setPage('pokemon');

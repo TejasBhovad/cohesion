@@ -20,15 +20,36 @@ export const App = () => {
   const [postId, setPostId] = useState('');
   const page = usePage();
   const initData = useDevvitListener('INIT_RESPONSE');
+  const formFetcher = useDevvitListener('FETCH_FORM_DATA');
+  const handleFetchData = async () => {
+    // Only run if we have a postId
+    if (postId) {
+      sendToDevvit({
+        type: 'FETCH_FORM_DATA',
+        payload: { postId },
+      });
+    }
+  };
+  // Send INIT message when component mounts
   useEffect(() => {
     sendToDevvit({ type: 'INIT' });
   }, []);
 
+  // Update postId when initData changes
   useEffect(() => {
-    if (initData) {
+    if (initData && initData.postId) {
       setPostId(initData.postId);
+      console.log('Received initData:', initData);
     }
-  }, [initData, setPostId]);
+  }, [initData]);
 
-  return <div className="h-full">{getPage(page, { postId })}</div>;
+  useEffect(() => {
+    // Only run if we have a postId
+    if (postId) {
+      handleFetchData();
+    }
+  }, [postId]);
+
+  // return <div className="h-full">{getPage(page, { postId })}</div>;
+  return <div className="h-full">{JSON.stringify(formFetcher)}</div>;
 };

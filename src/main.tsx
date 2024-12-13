@@ -1,4 +1,4 @@
-import { Devvit, useAsync, useState } from '@devvit/public-api';
+import { Devvit, useState } from '@devvit/public-api';
 import { DEVVIT_SETTINGS_KEYS } from './constants.js';
 import { sendMessageToWebview } from './utils/utils.js';
 import { WebviewToBlockMessage } from '../game/shared.js';
@@ -7,7 +7,6 @@ import { Preview } from './components/Preview.js';
 import { getPokemonByName } from './core/pokeapi.js';
 
 Devvit.addSettings([
-  // Just here as an example
   {
     name: DEVVIT_SETTINGS_KEYS.SECRET_API_KEY,
     label: 'API Key for secret things',
@@ -23,27 +22,47 @@ Devvit.configure({
   redis: true,
   realtime: true,
 });
-
-Devvit.addMenuItem({
-  // Please update as you work on your idea!
-  label: 'Make my experience post',
-  location: 'subreddit',
-  forUserType: 'moderator',
-  onPress: async (_event, context) => {
+// Create a form for creating a webview post
+const createWebviewForm = Devvit.createForm(
+  {
+    fields: [
+      { name: 'name', label: 'Name', type: 'string' },
+      { name: 'description', label: 'Description', type: 'paragraph' },
+    ],
+    title: 'Create Webview Post',
+    acceptLabel: 'Create',
+  },
+  async (event, context) => {
+    const { name, description } = event.values;
     const { reddit, ui } = context;
-    const subreddit = await reddit.getCurrentSubreddit();
+
+    // Store the data with the post ID as the key
     const post = await reddit.submitPost({
-      // Title of the post. You'll want to update!
       title: 'My first experience post',
-      subredditName: subreddit.name,
+      subredditName: (await reddit.getCurrentSubreddit()).name,
       preview: <Preview />,
     });
+
+    console.log('Created post', post.id);
+    console.log('Storing data', { name, description });
+    // Store the data
+    await context.redis.set(`post:${post.id}:data`, JSON.stringify({ name, description }));
+
     ui.showToast({ text: 'Created post!' });
     ui.navigateTo(post.url);
+  }
+);
+
+// Add menu item to show the form
+Devvit.addMenuItem({
+  label: 'Create Webview Post',
+  location: 'subreddit',
+  onPress: (_, context) => {
+    context.ui.showForm(createWebviewForm);
   },
 });
 
-// Add a post type definition
+// Add a custom post type definition
 Devvit.addCustomPostType({
   name: 'Experience Post',
   height: 'tall',
@@ -64,6 +83,7 @@ Devvit.addCustomPostType({
 
               switch (data.type) {
                 case 'INIT':
+                  // Send name and description stored in context
                   sendMessageToWebview(context, {
                     type: 'INIT_RESPONSE',
                     payload: {
@@ -80,9 +100,30 @@ Devvit.addCustomPostType({
                     payload: {
                       name: pokemon.name,
                       number: pokemon.id,
-                      // Note that we don't allow outside images on Reddit if
-                      // wanted to get the sprite. Please reach out to support
-                      // if you need this for your app!
+                    },
+                  });
+                  break;
+                case 'FETCH_FORM_DATA':
+                  context.ui.showToast({ text: `Received message: ${JSON.stringify(data)}` });
+                  const storedData = await context.redis.get(`post:${data.payload.postId}:data`);
+                  console.log('Fetched stored data', storedData);
+                  if (!storedData) {
+                    console.error(`No data found for post ID: ${data.payload.postId}`);
+                    sendMessageToWebview(context, {
+                      type: 'FETCH_FORM_DATA_ERROR',
+                      payload: {
+                        error: 'No data found',
+                      },
+                    });
+                    return;
+                  }
+                  const { name, description } = JSON.parse(storedData);
+                  console.log('Fetched form data', name, description);
+                  sendMessageToWebview(context, {
+                    type: 'FETCH_FORM_DATA',
+                    payload: {
+                      name,
+                      description,
                     },
                   });
                   break;
