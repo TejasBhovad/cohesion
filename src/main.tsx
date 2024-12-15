@@ -5,6 +5,7 @@ import { WebviewToBlockMessage } from '../game/shared.js';
 import { WEBVIEW_ID } from './constants.js';
 import { Preview } from './components/Preview.js';
 import { getPokemonByName } from './core/pokeapi.js';
+import { data } from 'framer-motion/client';
 
 Devvit.addSettings([
   {
@@ -22,43 +23,69 @@ Devvit.configure({
   redis: true,
   realtime: true,
 });
-// Create a form for creating a webview post
-const createWebviewForm = Devvit.createForm(
+
+const nameForm = Devvit.createForm(
   {
-    fields: [
-      { name: 'name', label: 'Name', type: 'string' },
-      { name: 'description', label: 'Description', type: 'paragraph' },
-    ],
-    title: 'Create Webview Post',
-    acceptLabel: 'Create',
+    fields: [{ name: 'name', label: 'Name', type: 'string' }],
+    title: 'Enter Name',
+    acceptLabel: 'Next',
   },
+  (event, context) => {
+    const name = event.values.name;
+    context.ui.showForm(descriptionForm, { name });
+  }
+);
+
+const descriptionForm = Devvit.createForm(
+  (data) => ({
+    fields: [
+      {
+        name: 'description',
+        label: 'Description',
+        type: 'paragraph',
+      },
+      {
+        name: 'name',
+        label: 'Name',
+        type: 'string',
+        defaultValue: data.name,
+        isSecret: true,
+        disabled: true,
+        scope: 'app',
+      },
+    ],
+    title: `Enter Description for ${data.name}`,
+    acceptLabel: 'Create Post',
+  }),
   async (event, context) => {
-    const { name, description } = event.values;
+    console.log('Received event', event);
+
+    const name = event.values.name; // Change this line
+    const description = event.values.description;
     const { reddit, ui } = context;
 
-    // Store the data with the post ID as the key
+    if (!name) {
+      ui.showToast({ text: 'Error: Name is missing' });
+      return;
+    }
+
     const post = await reddit.submitPost({
       title: 'My first experience post',
       subredditName: (await reddit.getCurrentSubreddit()).name,
       preview: <Preview />,
     });
 
-    console.log('Created post', post.id);
-    console.log('Storing data', { name, description });
-    // Store the data
     await context.redis.set(`post:${post.id}:data`, JSON.stringify({ name, description }));
 
     ui.showToast({ text: 'Created post!' });
     ui.navigateTo(post.url);
   }
 );
-
-// Add menu item to show the form
 Devvit.addMenuItem({
-  label: 'Create Webview Post',
+  label: 'Create Multi-stage Post',
   location: 'subreddit',
   onPress: (_, context) => {
-    context.ui.showForm(createWebviewForm);
+    context.ui.showForm(nameForm);
   },
 });
 
