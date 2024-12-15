@@ -5,6 +5,9 @@ export type Page =
 export type WebviewToBlockMessage = { type: "INIT" } | {
   type: "GET_POKEMON_REQUEST";
   payload: { name: string };
+} | {
+  type: "FETCH_FORM_DATA";
+  payload: { postId: string };
 };
 
 export type BlocksToWebviewMessage = {
@@ -17,7 +20,15 @@ export type BlocksToWebviewMessage = {
   type: "GET_POKEMON_RESPONSE";
   payload: { number: number; name: string; error?: string };
 } 
-
+|
+{
+  type: "FETCH_FORM_DATA";
+  payload: { data: string };
+} |
+{
+  type: "FETCH_FORM_DATA_ERROR";
+  payload: { error: string };
+}
 
 export type DevvitMessage = {
   type: "devvit-message";
