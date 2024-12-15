@@ -24,71 +24,87 @@ Devvit.configure({
   realtime: true,
 });
 
-const nameForm = Devvit.createForm(
+const createWordForm = (formNumber: number) =>
+  Devvit.createForm(
+    (data) => ({
+      fields: [
+        { name: 'context', label: `Context ${formNumber}`, type: 'paragraph' },
+        { name: 'word1', label: 'Word 1', type: 'string' },
+        { name: 'word2', label: 'Word 2', type: 'string' },
+        { name: 'word3', label: 'Word 3', type: 'string' },
+        { name: 'word4', label: 'Word 4', type: 'string' },
+        {
+          name: 'allData',
+          label: 'All Data',
+          type: 'string',
+          disabled: true,
+          defaultValue: data.allData,
+        },
+      ],
+      title: `Word Form ${formNumber}`,
+      acceptLabel: formNumber === 4 ? 'Create Post' : 'Next',
+    }),
+    (event, context) => {
+      console.log(`Form ${formNumber} submitted:`, event.values);
+      const allData = JSON.parse(event.values.allData);
+      allData[`wordCluster${formNumber}`] = {
+        context: event.values.context,
+        words: [event.values.word1, event.values.word2, event.values.word3, event.values.word4],
+      };
+
+      if (formNumber < 4) {
+        context.ui.showForm(wordForms[formNumber], { allData: JSON.stringify(allData) });
+      } else {
+        createPost(allData, context);
+      }
+    }
+  );
+
+const wordForms = [createWordForm(1), createWordForm(2), createWordForm(3), createWordForm(4)];
+
+const initialForm = Devvit.createForm(
   {
-    fields: [{ name: 'name', label: 'Name', type: 'string' }],
-    title: 'Enter Name',
+    fields: [
+      { name: 'gameTitle', label: 'Game Title', type: 'string' },
+      { name: 'gameDescription', label: 'Game Description (Optional)', type: 'paragraph' },
+    ],
+    title: 'Game Information',
     acceptLabel: 'Next',
   },
   (event, context) => {
-    const name = event.values.name;
-    context.ui.showForm(descriptionForm, { name });
+    console.log('Initial form submitted:', event.values);
+    const initialData = {
+      gameTitle: event.values.gameTitle,
+      gameDescription: event.values.gameDescription,
+    };
+    context.ui.showForm(wordForms[0], { allData: JSON.stringify(initialData) });
   }
 );
 
-const descriptionForm = Devvit.createForm(
-  (data) => ({
-    fields: [
-      {
-        name: 'description',
-        label: 'Description',
-        type: 'paragraph',
-      },
-      {
-        name: 'name',
-        label: 'Name',
-        type: 'string',
-        defaultValue: data.name,
-        isSecret: true,
-        disabled: true,
-        scope: 'app',
-      },
-    ],
-    title: `Enter Description for ${data.name}`,
-    acceptLabel: 'Create Post',
-  }),
-  async (event, context) => {
-    console.log('Received event', event);
+async function createPost(data: any, context: any) {
+  const { reddit, ui, redis } = context;
+  console.log('All form data:', data);
 
-    const name = event.values.name; // Change this line
-    const description = event.values.description;
-    const { reddit, ui } = context;
+  const post = await reddit.submitPost({
+    title: data.gameTitle,
+    subredditName: (await reddit.getCurrentSubreddit()).name,
+    preview: <Preview />,
+  });
 
-    if (!name) {
-      ui.showToast({ text: 'Error: Name is missing' });
-      return;
-    }
+  await redis.set(`post:${post.id}:data`, JSON.stringify(data));
+  console.log('Data stored in Redis for post:', post.id);
 
-    const post = await reddit.submitPost({
-      title: 'My first experience post',
-      subredditName: (await reddit.getCurrentSubreddit()).name,
-      preview: <Preview />,
-    });
+  ui.showToast({ text: 'Created post!' });
+  ui.navigateTo(post.url);
+}
 
-    await context.redis.set(`post:${post.id}:data`, JSON.stringify({ name, description }));
-
-    ui.showToast({ text: 'Created post!' });
-    ui.navigateTo(post.url);
-  }
-);
 Devvit.addMenuItem({
-  label: 'Create Multi-stage Post',
+  label: 'Create Multi-level Game Post',
   location: 'subreddit',
   onPress: (_, context) => {
-    context.ui.showForm(nameForm);
+    context.ui.showForm(initialForm);
   },
 });
-
 // Add a custom post type definition
 Devvit.addCustomPostType({
   name: 'Experience Post',
@@ -144,13 +160,12 @@ Devvit.addCustomPostType({
                     });
                     return;
                   }
-                  const { name, description } = JSON.parse(storedData);
-                  console.log('Fetched form data', name, description);
+                  const parsedData = JSON.parse(storedData);
+                  console.log('Fetched form data', parsedData);
                   sendMessageToWebview(context, {
                     type: 'FETCH_FORM_DATA',
                     payload: {
-                      name,
-                      description,
+                      data: parsedData,
                     },
                   });
                   break;
