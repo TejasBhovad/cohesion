@@ -63,6 +63,6 @@ export const App = () => {
     }
   }, [postId]);
 
-  return <div className="h-full">{getPage(page, { postId })}</div>;
+  return <div className="h-full w-full bg-[#0E0E0E]">{getPage(page, { postId })}</div>;
   // return <div className="h-full">{JSON.stringify(formFetcher)}</div>;
 };

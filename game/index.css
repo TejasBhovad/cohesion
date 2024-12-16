@@ -5,3 +5,9 @@
 body {
   height: 512px;
 }
+
+html,
+body,
+#root {
+  height: 100%;
+}

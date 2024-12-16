@@ -1,120 +1,148 @@
-import { ComponentProps, useEffect, useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useSetPage } from '../hooks/usePage';
-import { cn } from '../utils';
+import Board from '../components/Board';
+import { pre } from 'framer-motion/client';
 
 export const HomePage = ({ _data }) => {
   const setPage = useSetPage();
 
-  const data = {
-    board_title: _data.gameTitle,
-    clusters: [
-      _data.wordCluster1, _data.wordCluster2, _data.wordCluster3, _data.wordCluster4
-    ],
-    isValid: true,
-  };
+  const initialData = useMemo(
+    () => ({
+      board_title: _data.gameTitle,
+      clusters: [_data.wordCluster1, _data.wordCluster2, _data.wordCluster3, _data.wordCluster4],
+      isValid: true,
+    }),
+    [_data]
+  );
 
-  const { gameState, setGameState } = useState({
-    status: 'playing', // 'playing', 'won', 'lost'
-    correctClusters: [],
-    cells: data.clusters
+  const initialCells = useMemo(
+    () =>
+      initialData.clusters
         .flatMap((cluster) => cluster.words)
-        .map((word) => ({
-            word,
-            isSelected: false,
-            isUsed: false,
-            cluster: null
+        .map((word, index) => ({
+          id: index,
+          word,
+          isSelected: false,
+          isUsed: false,
+          cluster: null,
         })),
+    [initialData]
+  );
+
+  const [gameState, setGameState] = useState({
+    status: 'playing',
+    correctClusters: [],
+    cells: initialCells,
     wrongCells: [],
-    triesLeft: 6
+    triesLeft: 6,
   });
 
-  const shuffleBoardFn = () => {
-    gameState.cells = gameState.cells
-      .map((value) => ({ value, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
-  };
+  const selectCellFn = useCallback((cellToSelect) => {
+    setGameState((prev) => {
+      // Prevent selection if game is over
+      if (prev.status !== 'playing') return prev;
 
-  const submitFn = () => {
-    const selectedWords = gameState.cells
-      .filter((cell) => cell.isSelected)
-      .map((cell) => cell.word);
-    let clusterIndex = -1;
-
-    // Find a matching cluster
-    for (let i = 0; i < data.clusters.length; i++) {
-      if (gameState.correctClusters.includes(i)) {
-        continue;
-      }
-      if (
-        selectedWords.filter((word) => data.clusters[i].words.includes(word)).length === 4
-      ) {
-        clusterIndex = i;
-        gameState.correctClusters.push(i);
-        break;
-      }
-    }
-
-    // If no matching cluster is found
-    if (clusterIndex === -1) {
-      gameState.triesLeft--;
-      gameState.wrongCells = gameState.cells.filter((cell) => cell.isSelected);
-    } else {
-      // Correct cluster found
-      for (let i = 0; i < gameState.cells.length; i++) {
-        if (gameState.cells[i].isSelected) {
-          gameState.cells[i].isUsed = true;
-          gameState.cells[i].cluster = clusterIndex;
+      const updatedCells = prev.cells.map((cell) => {
+        if (cell.id === cellToSelect.id) {
+          return { ...cell, isSelected: !cell.isSelected };
         }
+        return cell;
+      });
+
+      const selectedCount = updatedCells.filter((cell) => cell.isSelected).length;
+
+      if (selectedCount > 4) {
+        return prev;
       }
-      toast.success(data.clusters[clusterIndex].context);
-  }
 
-    // Win condition
-    if (gameState.cells.every((cell) => cell.isUsed)) {
-      handleGameWin();
-      handleGamePlay();
-    }
+      return {
+        ...prev,
+        cells: updatedCells,
+      };
+    });
+  }, []);
 
-    // Deselect all cells after submission
-    gameState.cells.forEach((cell) => (cell.isSelected = false));
-  };
+  const submitFn = useCallback(() => {
+    setGameState((prev) => {
+      // Prevent submission if game is over
+      if (prev.status !== 'playing') return prev;
+      console.log('Submitting', prev);
+      // Get selected words
+      const selectedCells = prev.cells.filter((cell) => cell.isSelected);
+      const selectedWords = selectedCells.map((cell) => cell.word);
 
-  const selectCellFn = (index) => {
-    if (gameState.cells[index].isUsed || gameState.status !== 'playing') {
-      return;
-    }
+      // Ensure exactly 4 words are selected
+      if (selectedWords.length !== 4) return prev;
 
-    if (!gameState.cells[index].isSelected) {
-      if (gameState.cells.reduce((acc, cell) => acc + cell.isSelected, 0) >= 4) {
-          return;
+      // Create a new state object
+      const newState = { ...prev };
+
+      // Check if ALL selected words belong to an UNSELECTED cluster
+      const matchingClusterIndex = initialData.clusters.findIndex(
+        (cluster, index) =>
+          selectedWords.length === 4 &&
+          selectedWords.every((word) => cluster.words.includes(word)) &&
+          // Ensure the cluster hasn't been previously selected
+          !prev.correctClusters.includes(index)
+      );
+
+      if (matchingClusterIndex === -1) {
+        console.log('No matching cluster found');
+        // No matching cluster or cluster already selected - wrong submission
+        newState.triesLeft = Math.max(0, newState.triesLeft - 1);
+        newState.wrongCells = selectedCells;
+
+        // Reset selection for incorrect attempts
+        newState.cells = newState.cells.map((cell) => ({
+          ...cell,
+          isSelected: false,
+        }));
+
+        // Check game over condition
+        if (newState.triesLeft <= 0) {
+          newState.status = 'lost';
+        }
+      } else {
+        // Correct cluster found
+        // Add to correct clusters
+        newState.correctClusters.push(matchingClusterIndex);
+
+        // Mark matched words as used and remove them from cells array
+        newState.cells = newState.cells
+          .map((cell) => {
+            if (selectedWords.includes(cell.word)) {
+              return { ...cell, isUsed: true, isSelected: false };
+            }
+            return cell;
+          })
+          .filter((cell) => !selectedWords.includes(cell.word));
       }
-      gameState.cells[index].isSelected = true;
-    } else {
-      gameState.cells[index].isSelected = false;
-    }
-  };
+
+      // Check win condition after processing
+      if (newState.correctClusters.length === initialData.clusters.length) {
+        newState.status = 'won';
+      }
+
+      return newState;
+    });
+  }, [initialData]);
 
   return (
-    <div class="h-full">
-      {JSON.stringify(data)}
-      {/* <h1 class="px-4 py-6 text-start text-4xl font-bold capitalize text-foreground">
-        {data.board_title}
-      </h1>
-      <BoardHeader
-        shuffleBoardFn={shuffleBoardFn}
-        submitFn={submitFn}
-        submitEnable={gameState.status === 'playing' &&
-          gameState.cells.reduce((acc, cell) => acc + cell.isSelected, 0) === 4}
-      />
-      <Board
-        cells={gameState.cells}
-        selectCellFn={selectCellFn}
-        wrongCells={gameState.wrongCells}
-        correctClusters={gameState.correctClusters.map((index) => data.clusters[index])}
-        gameStatus={gameState.status}
-      />
-      <TriesLeft triesLeft={gameState.triesLeft} totalTries={6} /> */}
+    <div className="flex h-full w-full flex-col items-center justify-center text-white">
+      <div className="flex h-full max-w-5xl flex-col gap-6 px-6 py-6">
+        <h1 className="text-foreground text-start text-4xl font-bold capitalize">
+          {initialData.board_title}
+        </h1>
+        <Board
+          cells={gameState.cells}
+          selectCellFn={selectCellFn}
+          submitFn={submitFn}
+          wrongCells={gameState.wrongCells}
+          correctClusters={gameState.correctClusters.map((index) => initialData.clusters[index])}
+          gameStatus={gameState.status}
+        />
+        <div className="mt-4 text-center">Tries Left: {gameState.triesLeft}</div>
+      </div>
     </div>
   );
 };
