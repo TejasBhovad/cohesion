@@ -10,4 +10,32 @@ html,
 body,
 #root {
   height: 100%;
+  background-color: #0e0e0e;
+  overflow-x: hidden;
+  --scrollbar-track-color: #282828; /* Dark mode track color */
+  --scrollbar-thumb-color: #343127; /* Dark mode thumb color */
+  --scrollbar-thumb-hover-color: #3b372b; /* Dark mode thumb hover color */
+  /* width */
+  ::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-color);
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-color);
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-color);
+  }
+  ::selection {
+    background: #f5af24;
+    color: #0b0b08;
+  }
 }

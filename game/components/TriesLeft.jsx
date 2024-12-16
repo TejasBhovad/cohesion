@@ -44,7 +44,7 @@ const TriesLeft = ({ triesLeft = 6, totalTries = 6 }) => {
     );
 
   return (
-    <div className="flex w-full items-center justify-center gap-5 rounded-md py-9">
+    <div className="flex w-full items-center justify-center gap-5 rounded-md py-4">
       {Array.from({ length: totalTries }).map((_, i) =>
         renderTurnDiv(i < triesLeft, isAnimating, i)
       )}

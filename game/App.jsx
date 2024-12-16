@@ -5,24 +5,10 @@ import { useEffect, useState } from 'react';
 import { sendToDevvit } from './utils';
 import { useDevvitListener } from './hooks/useDevvitListener';
 
-const getPage = (page, { postId }) => {
+const getPage = (page, { gameData }) => {
   switch (page) {
     case 'home':
-      return (
-        <HomePage
-          _data={{
-            'gameTitle': 'hello wordl',
-            'gameDescription': 'fgjfgvj',
-            'wordCluster1': { 'context': 'f', 'words': ['sdf', 'sd', 'sf', 'sfs'] },
-            'wordCluster2': { 'context': 'sgsgsg', 'words': ['sgsgs', 'sgs', 's', 'gsg'] },
-            'wordCluster3': { 'context': 'sggsg', 'words': ['sgsgsg', 'sgsg', 'sgsg', 'sgsgsg'] },
-            'wordCluster4': {
-              'context': 'ssgsgg',
-              'words': ['dgdgdg', 'dgdgdg', 'dgdgd', 'dgdgdg'],
-            },
-          }}
-        />
-      );
+      return <HomePage _data={gameData} />;
 
     default:
       throw new Error(`Unknown page: ${page}`);
@@ -34,6 +20,7 @@ export const App = () => {
   const page = usePage();
   const initData = useDevvitListener('INIT_RESPONSE');
   const formFetcher = useDevvitListener('FETCH_FORM_DATA');
+  const [gameData, setGameData] = useState(null);
   const handleFetchData = async () => {
     // Only run if we have a postId
     if (postId) {
@@ -63,6 +50,15 @@ export const App = () => {
     }
   }, [postId]);
 
-  return <div className="h-full w-full bg-[#0E0E0E]">{getPage(page, { postId })}</div>;
+  useEffect(() => {
+    if (formFetcher && formFetcher.data) {
+      setGameData(formFetcher.data);
+    }
+  }, [formFetcher]);
+  if (!gameData) {
+    return <div className="h-full w-full bg-[#0E0E0E]">loading</div>;
+  }
+
+  return <div className="h-full w-full bg-[#0E0E0E]">{getPage(page, { gameData: gameData })}</div>;
   // return <div className="h-full">{JSON.stringify(formFetcher)}</div>;
 };

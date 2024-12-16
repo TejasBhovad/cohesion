@@ -1,11 +1,9 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useSetPage } from '../hooks/usePage';
+
 import Board from '../components/Board';
 import TriesLeft from '../components/TriesLeft';
 import SubmitButton from '../components/SubmitButon';
 export const HomePage = ({ _data }) => {
-  const setPage = useSetPage();
-
   const initialData = useMemo(
     () => ({
       board_title: _data.gameTitle,
@@ -143,12 +141,12 @@ export const HomePage = ({ _data }) => {
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center text-white">
-      <div className="flex h-full max-w-5xl flex-col gap-6 px-6 py-6">
+      <div className="flex h-full max-w-5xl flex-col gap-6 p-6">
         <div className="flex w-full items-center gap-4">
-          <h1 className="text-foreground flex-grow text-start text-4xl font-bold capitalize">
+          <h1 className="text-foreground flex-grow truncate text-start text-4xl font-bold capitalize">
             {initialData.board_title}
           </h1>
-          <div className="col-span-full mt-4 flex w-fit justify-start">
+          <div className="col-span-full flex w-fit justify-start">
             <SubmitButton enable={true} submitFn={submitFn} />
           </div>
         </div>

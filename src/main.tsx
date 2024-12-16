@@ -89,12 +89,14 @@ async function createPost(data: any, context: any) {
     subredditName: (await reddit.getCurrentSubreddit()).name,
     preview: <Preview />,
   });
-
+  await context.ui.showToast({
+    text: 'Post created! Click here to view.',
+    appearance: 'success',
+    onClick: () => ui.navigateTo(post),
+  });
   await redis.set(`post:${post.id}:data`, JSON.stringify(data));
-  console.log('Data stored in Redis for post:', post.id);
 
-  ui.showToast({ text: 'Created post!' });
-  ui.navigateTo(post.url);
+  console.log('Data stored in Redis for post:', post.id);
 }
 
 Devvit.addMenuItem({
@@ -134,7 +136,7 @@ Devvit.addCustomPostType({
                   });
                   break;
                 case 'GET_POKEMON_REQUEST':
-                  context.ui.showToast({ text: `Received message: ${JSON.stringify(data)}` });
+                  // context.ui.showToast({ text: `Received message: ${JSON.stringify(data)}` });
                   const pokemon = await getPokemonByName(data.payload.name);
 
                   sendMessageToWebview(context, {
@@ -146,7 +148,7 @@ Devvit.addCustomPostType({
                   });
                   break;
                 case 'FETCH_FORM_DATA':
-                  context.ui.showToast({ text: `Received message: ${JSON.stringify(data)}` });
+                  // context.ui.showToast({ text: `Received message: ${JSON.stringify(data)}` });
                   const storedData = await context.redis.get(`post:${data.payload.postId}:data`);
                   console.log('Fetched stored data', storedData);
                   if (!storedData) {
