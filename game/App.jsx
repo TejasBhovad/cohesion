@@ -8,9 +8,24 @@ import { useDevvitListener } from './hooks/useDevvitListener';
 const getPage = (page, { postId }) => {
   switch (page) {
     case 'home':
-      return <HomePage postId={postId} />;
-    case 'pokemon':
-      return <PokemonPage />;
+      return (
+        <HomePage
+          data={{
+            'data': {
+              'gameTitle': 'hello wordl',
+              'gameDescription': 'fgjfgvj',
+              'wordCluster1': { 'context': 'f', 'words': ['sdf', 'sd', 'sf', 'sfs'] },
+              'wordCluster2': { 'context': 'sgsgsg', 'words': ['sgsgs', 'sgs', 's', 'gsg'] },
+              'wordCluster3': { 'context': 'sggsg', 'words': ['sgsgsg', 'sgsg', 'sgsg', 'sgsgsg'] },
+              'wordCluster4': {
+                'context': 'ssgsgg',
+                'words': ['dgdgdg', 'dgdgdg', 'dgdgd', 'dgdgdg'],
+              },
+            },
+          }}
+        />
+      );
+
     default:
       throw new Error(`Unknown page: ${page}`);
   }
@@ -50,6 +65,6 @@ export const App = () => {
     }
   }, [postId]);
 
-  // return <div className="h-full">{getPage(page, { postId })}</div>;
-  return <div className="h-full">{JSON.stringify(formFetcher)}</div>;
+  return <div className="h-full">{getPage(page, { postId })}</div>;
+  // return <div className="h-full">{JSON.stringify(formFetcher)}</div>;
 };
