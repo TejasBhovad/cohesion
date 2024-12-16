@@ -5,6 +5,8 @@
     "esModuleInterop": true,
     "noEmit": true
   },
-  "include": ["./src/**/*"],
+  "include": [
+    "./src/**/*",
+    "./game/**/*"          ],
   "extends": "@devvit/public-api/devvit.tsconfig.json"
 }
