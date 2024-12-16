@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { animate } from 'motion';
+import '../styles/cell.css';
 
 const BoardCell = ({ text, isSelected, isUsed, isWrong, selectCellFn }) => {
   const buttonRef = useRef(null);
@@ -45,9 +46,9 @@ const BoardCell = ({ text, isSelected, isUsed, isWrong, selectCellFn }) => {
       onClick={handleClick}
       className={`text-text relative flex w-full items-center justify-center rounded-lg border-2 px-4 py-4 text-xl font-bold shadow-sm transition-all duration-200 ease-out hover:shadow-md ${
         isWrong
-          ? 'wrong-cell border-red-500 bg-red-100/20 text-red-500'
+          ? 'wrong-cell border border-red-500 bg-red-100/20 text-red-500'
           : isSelected
-            ? 'active-cell border-yellow-500/50 bg-gradient-to-b from-yellow-300 to-yellow-500 text-black ring-1 ring-yellow-500/30'
+            ? 'active-cell border-yellow-500/50 bg-gradient-to-b from-yellow-300/20 to-yellow-500/20 text-white ring-1 ring-yellow-500/30'
             : 'border-secondary/50 hover:border-yellow-500/80'
       } ${
         isUsed
@@ -59,14 +60,15 @@ const BoardCell = ({ text, isSelected, isUsed, isWrong, selectCellFn }) => {
         <>
           <span className="animate-soft-pulse absolute inset-0 rounded-lg bg-yellow-500/10"></span>
           <div className="sparkle-effect">
-            {Array.from({ length: 8 }).map((_, index) => (
+            {Array.from({ length: 15 }).map((_, index) => (
               <div
                 key={index}
                 className="sparkle"
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
-                  '--delay': `${Math.random() * 1}s`,
+                  '--delay': `${(Math.random() * 2).toFixed(5)}s`,
+                  transform: `scale(${Math.random() * 0.5 + 0.5})`, // Random scale for variation
                 }}
               ></div>
             ))}
@@ -79,98 +81,3 @@ const BoardCell = ({ text, isSelected, isUsed, isWrong, selectCellFn }) => {
 };
 
 export default BoardCell;
-
-<style jsx>{`
-  .active-cell {
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
-    animation: subtle-pulse 2s ease-in-out;
-  }
-
-  .wrong-cell {
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
-    animation: wrong-pulse 2.5s infinite;
-    transition: background-color 0.3s ease-out;
-  }
-
-  @keyframes wrong-pulse {
-    0% {
-      background-color: rgba(255, 0, 0, 0.3);
-      transform: scale(1);
-    }
-    50% {
-      background-color: rgba(255, 0, 0, 0.1);
-      transform: scale(1.01);
-    }
-    100% {
-      background-color: rgba(255, 0, 0, 0);
-      transform: scale(1);
-    }
-  }
-
-  @keyframes subtle-pulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.01);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  @keyframes animate-soft-pulse {
-    0% {
-      opacity: 0.1;
-    }
-    50% {
-      opacity: 0.2;
-    }
-    100% {
-      opacity: 0.1;
-    }
-  }
-
-  .sparkle-effect {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  .sparkle {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    background-color: rgba(255, 215, 0, 0.3);
-    border-radius: 50%;
-    animation: sparkle-fade 1.5s ease-in infinite;
-    animation-delay: var(--delay);
-  }
-
-  @keyframes sparkle-fade {
-    0% {
-      transform: scale(0) rotate(0deg);
-      opacity: 0;
-    }
-    50% {
-      transform: scale(1) rotate(180deg);
-      opacity: 0.3;
-    }
-    100% {
-      transform: scale(0) rotate(360deg);
-      opacity: 0;
-    }
-  }
-
-  button {
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    -webkit-font-smoothing: subpixel-antialiased;
-  }
-
-  .active\\:scale-98\\:active {
-    transform: scale(0.99);
-  }
-`}</style>;

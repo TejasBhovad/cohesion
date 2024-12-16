@@ -5,8 +5,10 @@ const Board = ({ cells, selectCellFn, submitFn, wrongCells, correctClusters = []
   const selectedCount = cells.filter((cell) => cell.isSelected).length;
 
   // Helper to check if a cell is in correct clusters
-  const isInCorrectClusters = (cellWord) => {
-    return correctClusters.some((cluster) => cluster.words.includes(cellWord));
+  const isInCorrectClusters = (cellId) => {
+    return correctClusters.some((cluster) =>
+      cluster.words.some((word) => cells.find((cell) => cell.word === word)?.id === cellId)
+    );
   };
 
   return (
@@ -35,6 +37,7 @@ const Board = ({ cells, selectCellFn, submitFn, wrongCells, correctClusters = []
                     <BoardCell
                       text={word}
                       isUsed={true}
+                      isWrong={false} // Not applicable for correct clusters
                       isSelected={false}
                       selectCellFn={() => {}}
                     />
@@ -48,7 +51,7 @@ const Board = ({ cells, selectCellFn, submitFn, wrongCells, correctClusters = []
         {/* Main Game Board */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-4">
           {cells
-            .filter((cell) => !cell.isUsed && !isInCorrectClusters(cell.word))
+            .filter((cell) => !cell.isUsed && !isInCorrectClusters(cell.id))
             .map((cell) => (
               <div
                 key={cell.id}
@@ -59,7 +62,7 @@ const Board = ({ cells, selectCellFn, submitFn, wrongCells, correctClusters = []
                   isSelected={cell.isSelected}
                   text={cell.word}
                   isUsed={cell.isUsed}
-                  isWrong={wrongCells.includes(cell)}
+                  isWrong={wrongCells.some((wrongCell) => wrongCell.id === cell.id)} // Check if cell is in wrongCells using id
                   selectCellFn={() => selectCellFn(cell)}
                 />
               </div>
@@ -67,14 +70,6 @@ const Board = ({ cells, selectCellFn, submitFn, wrongCells, correctClusters = []
         </div>
 
         {/* Submit Button */}
-        {selectedCount === 4 && (
-          <button
-            onClick={submitFn}
-            className="bg-accent text-background mt-4 w-full rounded-lg p-2"
-          >
-            Submit
-          </button>
-        )}
 
         {/* Game Status */}
         {gameStatus === 'lost' && (

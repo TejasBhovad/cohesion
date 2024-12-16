@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSetPage } from '../hooks/usePage';
 import Board from '../components/Board';
 import TriesLeft from '../components/TriesLeft';
+import SubmitButton from '../components/SubmitButon';
 export const HomePage = ({ _data }) => {
   const setPage = useSetPage();
 
@@ -23,6 +24,7 @@ export const HomePage = ({ _data }) => {
           word,
           isSelected: false,
           isUsed: false,
+          isWrong: false, // Initialize isWrong to false
           cluster: null,
         })),
     [initialData]
@@ -65,6 +67,7 @@ export const HomePage = ({ _data }) => {
     setGameState((prev) => {
       // Prevent submission if game is over
       if (prev.status !== 'playing') return prev;
+
       console.log('Submitting', prev);
       // Get selected words
       const selectedCells = prev.cells.filter((cell) => cell.isSelected);
@@ -91,16 +94,28 @@ export const HomePage = ({ _data }) => {
         newState.triesLeft = Math.max(0, newState.triesLeft - 1);
         newState.wrongCells = selectedCells;
 
-        // Reset selection for incorrect attempts
+        // Reset selection for incorrect attempts and mark as wrong
         newState.cells = newState.cells.map((cell) => ({
           ...cell,
           isSelected: false,
+          isWrong: selectedWords.includes(cell.word), // Mark wrong cells
         }));
 
         // Check game over condition
         if (newState.triesLeft <= 0) {
           newState.status = 'lost';
         }
+
+        // Set timeout to reset isWrong after 2 seconds
+        setTimeout(() => {
+          setGameState((prevState) => ({
+            ...prevState,
+            cells: prevState.cells.map(
+              (cell) => ({ ...cell, isWrong: false }) // Reset isWrong to false
+            ),
+            wrongCells: [], // Clear wrongCells array if necessary
+          }));
+        }, 1500);
       } else {
         // Correct cluster found
         // Add to correct clusters
@@ -129,9 +144,15 @@ export const HomePage = ({ _data }) => {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center text-white">
       <div className="flex h-full max-w-5xl flex-col gap-6 px-6 py-6">
-        <h1 className="text-foreground text-start text-4xl font-bold capitalize">
-          {initialData.board_title}
-        </h1>
+        <div className="flex w-full items-center gap-4">
+          <h1 className="text-foreground flex-grow text-start text-4xl font-bold capitalize">
+            {initialData.board_title}
+          </h1>
+          <div className="col-span-full mt-4 flex w-fit justify-start">
+            <SubmitButton enable={true} submitFn={submitFn} />
+          </div>
+        </div>
+
         <Board
           cells={gameState.cells}
           selectCellFn={selectCellFn}

@@ -1,0 +1,18 @@
+.chevdiv {
+  transition: width 0.3s ease-in-out;
+}
+
+button:hover .chevdiv {
+  width: 100%;
+}
+
+.text {
+  transition:
+    transform 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
+}
+
+button:hover .text {
+  transform: translateX(100%);
+  opacity: 0;
+}
