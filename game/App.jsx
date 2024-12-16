@@ -10,17 +10,15 @@ const getPage = (page, { postId }) => {
     case 'home':
       return (
         <HomePage
-          data={{
-            'data': {
-              'gameTitle': 'hello wordl',
-              'gameDescription': 'fgjfgvj',
-              'wordCluster1': { 'context': 'f', 'words': ['sdf', 'sd', 'sf', 'sfs'] },
-              'wordCluster2': { 'context': 'sgsgsg', 'words': ['sgsgs', 'sgs', 's', 'gsg'] },
-              'wordCluster3': { 'context': 'sggsg', 'words': ['sgsgsg', 'sgsg', 'sgsg', 'sgsgsg'] },
-              'wordCluster4': {
-                'context': 'ssgsgg',
-                'words': ['dgdgdg', 'dgdgdg', 'dgdgd', 'dgdgdg'],
-              },
+          _data={{
+            'gameTitle': 'hello wordl',
+            'gameDescription': 'fgjfgvj',
+            'wordCluster1': { 'context': 'f', 'words': ['sdf', 'sd', 'sf', 'sfs'] },
+            'wordCluster2': { 'context': 'sgsgsg', 'words': ['sgsgs', 'sgs', 's', 'gsg'] },
+            'wordCluster3': { 'context': 'sggsg', 'words': ['sgsgsg', 'sgsg', 'sgsg', 'sgsgsg'] },
+            'wordCluster4': {
+              'context': 'ssgsgg',
+              'words': ['dgdgdg', 'dgdgdg', 'dgdgd', 'dgdgdg'],
             },
           }}
         />
