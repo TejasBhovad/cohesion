@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useSetPage } from '../hooks/usePage';
 import Board from '../components/Board';
-import { pre } from 'framer-motion/client';
-
+import TriesLeft from '../components/TriesLeft';
 export const HomePage = ({ _data }) => {
   const setPage = useSetPage();
 
@@ -141,7 +140,7 @@ export const HomePage = ({ _data }) => {
           correctClusters={gameState.correctClusters.map((index) => initialData.clusters[index])}
           gameStatus={gameState.status}
         />
-        <div className="mt-4 text-center">Tries Left: {gameState.triesLeft}</div>
+        <TriesLeft triesLeft={gameState.triesLeft} />
       </div>
     </div>
   );
