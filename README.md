@@ -4,8 +4,8 @@ Inspired by the game Connections, Cohesion is a game where players must connect 
 
 You can try out the Game at [https://www.reddit.com/r/devvit_thing/comments/1hg8p2k/new_board/](https://www.reddit.com/r/devvit_thing/comments/1hg8p2k/new_board/)
 
-![Cohesion Game](.github/normal.png)
-![Cohesion Game](.github/select.png)
+![Cohesion Game](https://utfs.io/f/BMx8sJXNdaDF2dKlhmXGdkcYTmWvlriazt6fSpDuo8UhK0sA)
+![Cohesion Game](https://utfs.io/f/BMx8sJXNdaDFn7eOaqBIe1FxoaX0v6tNAKRyPl5VUmW7fpqD)
 
 > Made using Devvit for the [Reddit Hackathon](https://redditgamesandpuzzles.devpost.com/)
 
