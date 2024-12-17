@@ -100,7 +100,7 @@ async function createPost(data: any, context: any) {
 }
 
 Devvit.addMenuItem({
-  label: 'Create Multi-level Game Post',
+  label: 'Create Cohesion Game',
   location: 'subreddit',
   onPress: (_, context) => {
     context.ui.showForm(initialForm);
@@ -108,7 +108,7 @@ Devvit.addMenuItem({
 });
 // Add a custom post type definition
 Devvit.addCustomPostType({
-  name: 'Experience Post',
+  name: 'Cohesion Game',
   height: 'tall',
   render: (context) => {
     const [launched, setLaunched] = useState(false);
