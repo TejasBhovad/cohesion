@@ -4,7 +4,6 @@ import { sendMessageToWebview } from './utils/utils.js';
 import { WebviewToBlockMessage } from '../game/shared.js';
 import { WEBVIEW_ID } from './constants.js';
 import { Preview } from './components/Preview.js';
-import { getPokemonByName } from './core/pokeapi.js';
 
 Devvit.addSettings([
   {
@@ -135,18 +134,7 @@ Devvit.addCustomPostType({
                     },
                   });
                   break;
-                case 'GET_POKEMON_REQUEST':
-                  // context.ui.showToast({ text: `Received message: ${JSON.stringify(data)}` });
-                  const pokemon = await getPokemonByName(data.payload.name);
 
-                  sendMessageToWebview(context, {
-                    type: 'GET_POKEMON_RESPONSE',
-                    payload: {
-                      name: pokemon.name,
-                      number: pokemon.id,
-                    },
-                  });
-                  break;
                 case 'FETCH_FORM_DATA':
                   // context.ui.showToast({ text: `Received message: ${JSON.stringify(data)}` });
                   const storedData = await context.redis.get(`post:${data.payload.postId}:data`);

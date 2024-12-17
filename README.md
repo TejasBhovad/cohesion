@@ -1,42 +1,7 @@
-## Devvit Webview React
+# Cohesion Game
 
-A template repository for writing webview apps with Devvit.
+Inspired by the game Connections, Cohesion is a game where players must connect words together using a common word. When you add this application to your subreddit, your community can create their own games and play them together.
 
-https://github.com/user-attachments/assets/5bf4d6ec-5ff1-49ce-8c50-f46e7fbac781
+> Made using Devvit for the [Reddit Hackathon](https://redditgamesandpuzzles.devpost.com/)
 
-### Tech
-
-- [Devvit](https://developers.reddit.com/docs/): Reddit’s Developer Platform that lets you build powerful apps and experiences to enhance the communities you love.
-- [Vite](https://vite.dev/): Advanced build tool for the web
-- [React](https://react.dev/): UI Library for the web
-- [TailwindCSS](https://tailwindcss.com/): Utility first CSS framework
-- [Typescript](https://www.typescriptlang.org/): Strongly typed Javascript superset
-- [Motion](https://motion.dev/): Animation Library
-
-## Getting started
-
-> Make sure you have Node 22 downloaded on your machine before running!
-
-```sh
-git clone ....
-
-cd ...
-
-npm install
-```
-
-Before continuing, make a subreddit on Reddit.com. This will be where you do your own development. Go to Reddit.com, scroll the left side bar down to communities, and click "Create a community."
-
-Next, go to the `package.json` and update see the `dev:devvit` command. Update the command to have you subreddit name.
-
-Finally go to `devvit.yaml` and name your app. It has to be 0-16 characters. Once you have, click save, and run `npm run upload` from the root of the repository.
-
-Now all you have to do is run `npm run dev` and navigate to the subreddit.
-
-There is one last gotcha! You need to make a new post before you can see it. You can do so by going to your subreddit, clicking the three dots, and tapping "Make my experience post". After you start developing your all please update the menu item copy (found in `src/main.tsx`).
-
-## Commands
-
-- `npm run dev`: Starts a development server where you can develop your application live on Reddit.
-- `npm run upload`: Uploads a new version of your app
-- `npm run vite`: Useful to run just the React app on your machine if you need to style things quickly.
+Alongside the game, we also launched a website written in SvelteKit to allow users to play the game outside of Reddit. You can find the website [here](https://cohesion-game.vercel.app/).
