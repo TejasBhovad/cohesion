@@ -4,6 +4,14 @@ import Board from '../components/Board';
 import TriesLeft from '../components/TriesLeft';
 import SubmitButton from '../components/SubmitButon';
 export const HomePage = ({ _data }) => {
+  const shuffleArray = (array) => {
+    const shuffledArray = [...array];
+    for (let i = shuffledArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+    }
+    return shuffledArray;
+  };
   const initialData = useMemo(
     () => ({
       board_title: _data.gameTitle,
@@ -15,16 +23,18 @@ export const HomePage = ({ _data }) => {
 
   const initialCells = useMemo(
     () =>
-      initialData.clusters
-        .flatMap((cluster) => cluster.words)
-        .map((word, index) => ({
-          id: index,
-          word,
-          isSelected: false,
-          isUsed: false,
-          isWrong: false, // Initialize isWrong to false
-          cluster: null,
-        })),
+      shuffleArray(
+        initialData.clusters
+          .flatMap((cluster) => cluster.words)
+          .map((word, index) => ({
+            id: index,
+            word,
+            isSelected: false,
+            isUsed: false,
+            isWrong: false,
+            cluster: null,
+          }))
+      ),
     [initialData]
   );
 
